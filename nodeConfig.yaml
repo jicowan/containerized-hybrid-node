@@ -1,0 +1,13 @@
+apiVersion: node.eks.aws/v1alpha1
+kind: NodeConfig
+spec:
+  cluster:
+    name: hybrid # Name of the EKS cluster
+    region: us-west-2 # AWS Region where the EKS cluster resides
+  kubelet:
+    flags:
+      - --fail-swap-on=false
+  hybrid:
+    ssm:
+      activationCode: # SSM hybrid activation code
+      activationId: # SSM hybrid activation id

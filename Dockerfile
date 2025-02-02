@@ -1,0 +1,34 @@
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+
+RUN dnf -y update \
+    && dnf -y install systemd runc containerd docker iptables socat conntrack ebtables ethtool tar procps kmod \
+    && dnf clean all
+    
+RUN cd /lib/systemd/system/sysinit.target.wants/; \
+    for i in *; do [ $i = systemd-tmpfiles-setup.service ] || rm -f $i; done
+
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/basic.target.wants/* \
+    /lib/systemd/system/anaconda.target.wants/*
+
+# Copy nodeConfig to /usr/local/bin/
+COPY ["nodeConfig.yaml", "entrypoint.sh", "setup-overlay.sh", "update-containerd.sh", "/usr/local/bin/"]
+
+# Download and install nodeadm
+RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/amd64/nodeadm' \
+    && chmod +x nodeadm \
+    && mv nodeadm /usr/local/bin/ \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose the kubelet port
+EXPOSE 10250
+
+# Set the ENTRYPOINT to the script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Set default command to systemd
+CMD ["/sbin/init"]
