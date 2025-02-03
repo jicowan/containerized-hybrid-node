@@ -5,6 +5,11 @@ LOG_FILE="/var/log/nodeadm_poststart_commands.log"
 
 # Function to run commands after the main process starts
 run_post_start_commands() {
+    mount -t tmpfs tmpfs /mnt/tmpfs
+    # Create necessary directories for containerd
+    mkdir -p /mnt/tmpfs/containerd /mnt/tmpfs/upper /mnt/tmpfs/work
+    # Ensure permissions are correct
+    chown -R root:root /mnt/tmpfs
     echo "Waiting for the main process to initialize..."
     sleep 5  # Adjust the sleep time or use polling for readiness checks
     echo "Executing post-start tasks..."

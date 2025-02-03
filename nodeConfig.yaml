@@ -4,6 +4,14 @@ spec:
   cluster:
     name: hybrid # Name of the EKS cluster
     region: us-west-2 # AWS Region where the EKS cluster resides
+  containerd:
+    config: |
+      root = "/mnt/tmpfs/containerd"
+      state = "/run/containerd"
+      [plugins."io.containerd.grpc.v1.cri".containerd]
+        snapshotter = "native"
+      [plugins."io.containerd.grpc.v1.cri"]
+        sandbox_image = "registry.k8s.io/pause:3.5"
   kubelet:
     flags:
       - --fail-swap-on=false

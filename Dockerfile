@@ -24,6 +24,10 @@ RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/
     && mv nodeadm /usr/local/bin/ \
     && chmod +x /usr/local/bin/entrypoint.sh
 
+
+# Create mock overlay filesystem
+RUN mkdir -p /mnt/tmpfs
+
 # Expose the kubelet port
 EXPOSE 10250
 
