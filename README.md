@@ -17,3 +17,10 @@ kubectl create -f https://raw.githubusercontent.com/aojea/kindnet/main/install-k
 Right now, the containerd settings in the nodeConfig.yaml file are not being applied when nodeadm runs. These changes need to applied manually by running the `update-containerd.sh` script once nodeadm is finished running. After containerd is running, manually start the kubelet by running `systemctl start kubelet`. The node will join the cluster and appear as Ready shortly thereafter. While you will be able to schedule pods onto it, things like `kubectl logs` and `kubectl proxy` will not work. Since there is no direct network connectivity or route between the containerized hybrid node and instances in your VPC, pods that run on the containerized hybrid node will not be able to communicate the pods that run in the AWS cloud.  
 
 I would welcome help from the community if you are interested in contributing to this project. 
+
+### Resources
+- [kind/images/base/files/usr/local/bin/entrypoint at v0.26.0 · kubernetes-sigs/kind](https://github.com/kubernetes-sigs/kind/blob/v0.26.0/images/base/files/usr/local/bin/entrypoint)
+- [eks-anywhere-build-tooling/projects/kubernetes-sigs/kind/build/build-kind-node-image.sh at main · aws/eks-anywhere-build-tooling](https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/build/build-kind-node-image.sh)
+- [eks-anywhere-build-tooling/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch at main · aws/eks-anywhere-build-tooling](https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch)
+- https://github.com/search?q=repo%3Aaws%2Feks-anywhere-build-tooling%20config.toml&type=code
+- https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch
