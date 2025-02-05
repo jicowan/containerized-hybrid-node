@@ -17,7 +17,7 @@ build:
 # Run the Docker container
 .PHONY: run
 run:
-	docker run --rm --privileged --mount type=tmpfs,destination=/mnt/tmpfs --network host -v /var/run/docker.sock:/var/run/docker.sock --name $(CONTAINER_NAME) -d $(IMAGE_NAME):$(IMAGE_TAG) 
+	docker run --privileged --mount type=tmpfs,destination=/mnt/tmpfs --network host -v /var/run/docker.sock:/var/run/docker.sock --name $(CONTAINER_NAME) -d $(IMAGE_NAME):$(IMAGE_TAG) 
 	docker exec -it $(CONTAINER_NAME) /bin/bash
 
 # Stop the running container

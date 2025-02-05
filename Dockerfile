@@ -1,7 +1,7 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
-    && dnf -y install systemd runc containerd docker iptables socat conntrack ebtables ethtool tar procps kmod \
+    && dnf -y install systemd runc containerd docker iptables nftables socat conntrack ethtool tar procps kmod \
     && dnf clean all
     
 RUN cd /lib/systemd/system/sysinit.target.wants/; \
@@ -18,6 +18,8 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 # Copy nodeConfig to /usr/local/bin/
 COPY ["nodeConfig.yaml", "entrypoint.sh", "setup-overlay.sh", "update-containerd.sh", "/usr/local/bin/"]
 
+COPY 10-kinenet.conflist /etc/cni/net.d/10-kindnet.conflist
+
 # Download and install nodeadm
 RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/amd64/nodeadm' \
     && chmod +x nodeadm \
@@ -30,6 +32,10 @@ RUN mkdir -p /mnt/tmpfs
 
 # Expose the kubelet port
 EXPOSE 10250
+
+# systemd exits on SIGRTMIN+3, not SIGTERM (which re-executes it)
+# https://bugzilla.redhat.com/show_bug.cgi?id=1201657
+STOPSIGNAL SIGRTMIN+3
 
 # Set the ENTRYPOINT to the script
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

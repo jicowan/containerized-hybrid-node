@@ -5,4 +5,15 @@ When you run `make run`, it will exec into the container automatically. Run the 
 
 At this stage, if you followed the other prerequisites for running hybrid nodes, you should see the container appear as a node in your cluster. It will be in a `Not Ready` state because it is unable to pull images from ECR (a problem I have yet to troubleshoot). 
 
+### Update 2/5/2025
+Calico and Cilium are both supported by Hyrbid nodes. Unfortunately, I couldn't get either of those CNIs to run as nested containers during my testing. I was able to get [Kindnet](https://kindnet.es/docs/) to work, however. The configuration file for kindnet is copied to `/etc/cni/net.d/` during the Docker build process. You will have to install Kindnet separately by running:
+
+```bash
+kubectl create -f https://raw.githubusercontent.com/aojea/kindnet/main/install-kindnet.yaml
+```
+
+> Note: if you previously installed a CNI, remove it before installing Kindnet. 
+
+Right now, the containerd settings in the nodeConfig.yaml file are not being applied when nodeadm runs. These changes need to applied manually by running the `update-containerd.sh` script once nodeadm is finished running. After containerd is running, manually start the kubelet by running `systemctl start kubelet`. The node will join the cluster and appear as Ready shortly thereafter. While you will be able to schedule pods onto it, things like `kubectl logs` and `kubectl proxy` will not work. Since there is no direct network connectivity or route between the containerized hybrid node and instances in your VPC, pods that run on the containerized hybrid node will not be able to communicate the pods that run in the AWS cloud.  
+
 I would welcome help from the community if you are interested in contributing to this project. 
