@@ -18,7 +18,7 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 # Copy nodeConfig to /usr/local/bin/
 COPY ["nodeConfig.yaml", "entrypoint.sh", "setup-overlay.sh", "update-containerd.sh", "/usr/local/bin/"]
 
-COPY 10-kinenet.conflist /etc/cni/net.d/10-kindnet.conflist
+COPY 10-kindnet.conflist /etc/cni/net.d/10-kindnet.conflist
 
 # Download and install nodeadm
 RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/amd64/nodeadm' \
