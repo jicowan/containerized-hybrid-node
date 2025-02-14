@@ -26,6 +26,11 @@ RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/
     && mv nodeadm /usr/local/bin/ \
     && chmod +x /usr/local/bin/entrypoint.sh
 
+# Download and install crictl for local debugging
+ENV VERSION="v1.32.0"
+RUN curl -OL https://github.com/kubernetes-sigs/cri-tools/releases/download/${VERSION}/crictl-${VERSION}-linux-amd64.tar.gz \
+    && tar -C /usr/local/bin -xzf crictl-${VERSION}-linux-amd64.tar.gz \
+    && crictl-${VERSION}-linux-amd64.tar.gz
 
 # Create mock overlay filesystem
 RUN mkdir -p /mnt/tmpfs
