@@ -18,6 +18,15 @@ Right now, the containerd settings in the nodeConfig.yaml file are not being app
 
 I would welcome help from the community if you are interested in contributing to this project. 
 
+### Troubleshooting
+If the Kindnet pod fails to start because of disk pressure run `df -h` to see whether you're running low on disk space. If overlayfs is at or above 90% you may need to purge your cached images.
+
+If you see errors like this: 
+```
+W0214 00:18:07.164384       1 reflector.go:569] pkg/mod/k8s.io/client-go@v0.32.1/tools/cache/reflector.go:251: failed to list *v1.NetworkPolicy: Get "https://10.0.0.1:443/apis/networking.k8s.io/v1/networkpolicies?limit=500&resourceVersion=0": dial tcp 10.0.0.1:443: i/o timeout
+```
+in the kube-proxy logs, you may need to modify the kubelet's configuration to use the public API endpoint instead of 10.0.0.1.
+
 ### Resources
 - [kind/images/base/files/usr/local/bin/entrypoint at v0.26.0 · kubernetes-sigs/kind](https://github.com/kubernetes-sigs/kind/blob/v0.26.0/images/base/files/usr/local/bin/entrypoint)
 - [eks-anywhere-build-tooling/projects/kubernetes-sigs/kind/build/build-kind-node-image.sh at main · aws/eks-anywhere-build-tooling](https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/build/build-kind-node-image.sh)
