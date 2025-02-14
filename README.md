@@ -25,7 +25,7 @@ If you see errors like this:
 ```
 W0214 00:18:07.164384       1 reflector.go:569] pkg/mod/k8s.io/client-go@v0.32.1/tools/cache/reflector.go:251: failed to list *v1.NetworkPolicy: Get "https://10.0.0.1:443/apis/networking.k8s.io/v1/networkpolicies?limit=500&resourceVersion=0": dial tcp 10.0.0.1:443: i/o timeout
 ```
-in the kube-proxy logs, you may need to modify the kube-proxy ConfigMap to use the public API endpoint instead of 10.0.0.1
+in the kube-proxy logs, you may need to modify the kube-proxy ConfigMap to use the public API endpoint and/or modify the local clusterCIDR. 
 
 ### Resources
 - [kind/images/base/files/usr/local/bin/entrypoint at v0.26.0 · kubernetes-sigs/kind](https://github.com/kubernetes-sigs/kind/blob/v0.26.0/images/base/files/usr/local/bin/entrypoint)
