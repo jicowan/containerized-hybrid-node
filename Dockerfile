@@ -1,7 +1,7 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
-    && dnf -y install systemd runc containerd docker iptables nftables socat conntrack ethtool tar procps kmod \
+    && dnf -y install systemd runc containerd docker iptables nftables socat conntrack ethtool tar vi procps kmod \
     && dnf clean all
     
 RUN cd /lib/systemd/system/sysinit.target.wants/; \
@@ -30,7 +30,7 @@ RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/
 ENV VERSION="v1.32.0"
 RUN curl -OL https://github.com/kubernetes-sigs/cri-tools/releases/download/${VERSION}/crictl-${VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local/bin -xzf crictl-${VERSION}-linux-amd64.tar.gz \
-    && crictl-${VERSION}-linux-amd64.tar.gz
+    && rm crictl-${VERSION}-linux-amd64.tar.gz
 
 # Create mock overlay filesystem
 RUN mkdir -p /mnt/tmpfs
