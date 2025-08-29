@@ -46,11 +46,6 @@ FROM kindest/node:v1.29.2
   /linux/amd64/nodeadm' \
       && chmod +x nodeadm \
       && mv nodeadm /usr/local/bin/
-# Download and install nodeadm
-  RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin
-  /linux/amd64/nodeadm' \
-      && chmod +x nodeadm \
-      && mv nodeadm /usr/local/bin/
 # Copy configuration files
   COPY ["nodeConfig.yaml", "entrypoint.sh", "/usr/local/bin/"]
   RUN chmod +x /usr/local/bin/entrypoint.sh
