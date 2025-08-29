@@ -33,3 +33,30 @@ in the kindnet logs, you may need to add the KUBERNETES_SERVICE_HOST as an envir
 - [eks-anywhere-build-tooling/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch at main · aws/eks-anywhere-build-tooling](https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch)
 - https://github.com/search?q=repo%3Aaws%2Feks-anywhere-build-tooling%20config.toml&type=code
 - https://github.com/aws/eks-anywhere-build-tooling/blob/main/projects/kubernetes-sigs/kind/patches/0001-Switch-to-AL2-base-image-for-node-image.patch
+
+### Update 8/29/2025
+If it's possible to run the tailscale client on a containerized hybrid node as described in this [blog post](https://aws.amazon.com/blogs/containers/simplify-network-connectivity-using-tailscale-with-amazon-eks-hybrid-nodes/), it should theoretically fix the issue with `kubectl logs` and `kubectl proxy`. I also need to try creating an image based on the KIND image, as cilium is known to work on KIND. Below is a Dockerfile that I've yet to test. I would also need to make changes to the current entrypoint.sh to align with Debian rather than AL2023. 
+
+```Dockerfile
+FROM kindest/node:v1.29.2
+# Install EKS hybrid node components
+  RUN apt-get update && apt-get install -y curl
+# Download and install nodeadm
+  RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin
+  /linux/amd64/nodeadm' \
+      && chmod +x nodeadm \
+      && mv nodeadm /usr/local/bin/
+# Download and install nodeadm
+  RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin
+  /linux/amd64/nodeadm' \
+      && chmod +x nodeadm \
+      && mv nodeadm /usr/local/bin/
+# Copy configuration files
+  COPY ["nodeConfig.yaml", "entrypoint.sh", "/usr/local/bin/"]
+  RUN chmod +x /usr/local/bin/entrypoint.sh
+# Expose the kubelet port
+  EXPOSE 10250
+
+  ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+  CMD ["/sbin/init"]
+```
