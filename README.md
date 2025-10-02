@@ -57,7 +57,7 @@ FROM kindest/node:v1.29.2
 ```
 
 ### Update 10/1/2025
-The latest commit includes a Makefile in the /kind subdirectory that will build and run a containerized hyrbid node. You will need to update the nodeConfig.yaml with your SSM activation code and ID. The containerized node is using kindest/node as the base image since that image is known to work with Cilium. I had to make a few adjustments to the kube-proxy, cilium-controller, and cilium daemonset for them to run properly. For example, I made the following updates to the kube-proxy-config ConfigMap:
+The latest commit includes a Makefile in the /kind subdirectory that will build and run a containerized hyrbid node. You will need to update the nodeConfig.yaml with your SSM activation code and ID. The containerized node is using kindest/node as the base image since that image is known to work with Cilium. I had to make a few adjustments to the kube-proxy, cilium-operator, and cilium daemonset for them to run properly. For example, I made the following updates to the kube-proxy-config ConfigMap:
 
 ```yaml
 conntrack:
