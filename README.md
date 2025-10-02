@@ -55,3 +55,27 @@ FROM kindest/node:v1.29.2
   ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
   CMD ["/sbin/init"]
 ```
+
+### Update 10/1/2025
+The latest commit includes a Makefile in the /kind subdirectory that will build and run a containerized hyrbid node. You will need to update the nodeConfig.yaml with your SSM activation code and ID. The containerized node is using kindest/node as the base image since that image is known to work with Cilium. I had to make a few adjustments to the kube-proxy, cilium-controller, and cilium daemonset for them to run properly. For example, I made the following updates to the kube-proxy-config ConfigMap:
+
+```yaml
+conntrack:
+  maxPerCore: 0 # 32768
+  min: 0 # 131072
+  tcpCloseWaitTimeout: 1h0m0s
+  tcpEstablishedTimeout: 24h0m0s
+```
+
+I also disabled all the healthchecks for the cilium-operator. I had to add the following ENVs to the config init container and the cilium agent in the cilium daemonset: 
+
+```yaml
+- name: KUBERNETES_SERVICE_HOST
+  value: 10eac79eaf8cb890a26699acd31d6ea5.gr7.us-west-2.eks.amazonaws.com
+- name: KUBETNETES_SERVICE_PORT_HTTPS
+  value: '443'
+- name: KUBERNETES_SERVICE_PORT
+  value: '443'
+```
+
+And finally, I had to disable the healthchecks for the cilium agent. Once I did that, all of the containers started and ran without interruption. 
