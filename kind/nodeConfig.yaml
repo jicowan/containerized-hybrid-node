@@ -1,0 +1,24 @@
+apiVersion: node.eks.aws/v1alpha1
+kind: NodeConfig
+spec:
+  cluster:
+    name: hybrid # Name of the EKS cluster
+    region: us-west-2 # AWS Region where the EKS cluster resides
+    # Use the public EKS API server endpoint
+    # endpoint: https://10EAC79EAF8CB890A26699ACD31D6EA5.gr7.us-west-2.eks.amazonaws.com
+  kubelet:
+    flags:
+      - --fail-swap-on=false
+      - --cloud-provider=external
+      - --v=5
+  containerd:
+    config: |
+      [plugins."io.containerd.grpc.v1.cri"]
+        sandbox_image = "registry.k8s.io/pause:3.9"
+
+      [plugins."io.containerd.grpc.v1.cri".registry]
+        config_path = "/etc/containerd/certs.d:/etc/docker/certs.d"
+  hybrid:
+    ssm:
+      activationCode: xxxxxxx # SSM hybrid activation code
+      activationId: xxxxxxx # SSM hybrid activation id
