@@ -67,7 +67,7 @@ conntrack:
   tcpEstablishedTimeout: 24h0m0s
 ```
 
-I also disabled all the healthchecks for the cilium-operator. I had to add the following ENVs to the config init container and the cilium agent in the cilium daemonset: 
+I also disabled all the healthchecks for the cilium-operator. I added the following ENVs to the config init container and the cilium agent in the cilium daemonset: 
 
 ```yaml
 - name: KUBERNETES_SERVICE_HOST
@@ -78,4 +78,4 @@ I also disabled all the healthchecks for the cilium-operator. I had to add the f
   value: '443'
 ```
 
-And finally, I had to disable the healthchecks for the cilium agent. Once I did that, all of the containers started and ran without interruption. 
+And finally, I disabled the healthchecks for the cilium agent. Once I did those things, all of the containers started and ran without interruption. 
