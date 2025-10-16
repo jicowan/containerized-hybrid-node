@@ -19,6 +19,7 @@ build:
 run:
 	docker run \
 		--privileged \
+		--network host \
 		--security-opt seccomp=unconfined \
 		--security-opt apparmor=unconfined \
 		--tmpfs /tmp \

@@ -10,7 +10,10 @@ spec:
     flags:
       - --fail-swap-on=false
       - --cloud-provider=external
+      - --node-ip=192.168.7.217 # May not be necessary depending on your network setup
       - --v=5
+    config:
+
   containerd:
     config: |
       [plugins."io.containerd.grpc.v1.cri"]
@@ -20,5 +23,5 @@ spec:
         config_path = "/etc/containerd/certs.d:/etc/docker/certs.d"
   hybrid:
     ssm:
-      activationCode: xxxxxxx # SSM hybrid activation code
-      activationId: xxxxxxx # SSM hybrid activation id
+      activationCode: xxxx # SSM hybrid activation code
+      activationId: xxxx # SSM hybrid activation id

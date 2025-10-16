@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y curl gpg
 # RUN curl -fsSL https://tailscale.com/install.sh | sh
 
 # Download and install nodeadm
-RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/arm64/nodeadm' \
+RUN curl -OL 'https://hybrid-assets.eks.amazonaws.com/releases/latest/bin/linux/amd64/nodeadm' \
     && chmod +x nodeadm \
     && mv nodeadm /usr/local/bin/
 
