@@ -79,3 +79,8 @@ I also disabled all the healthchecks for the cilium-operator. I added the follow
 ```
 
 And finally, I disabled the healthchecks for the cilium agent. Once I did those things, all of the containers started and ran without interruption. 
+
+### Update 10/16/2025
+I was finally able to get kubectl exec and kubectl logs to work. I changed the container's network settings from bridge to host. Then I installed the tailscale agent on my laptop and configured it to advertise my laptop's CIDR and the Cilium CIDR range (10.244.0.0/24). I also had to install a tailscale router in the cluster VPC. The router is configured to advertise the VPC's CIDR. Finally, I had to update the VPC's route tables to route traffic destined for my containerized hybrid node and pods running on it, through the ENI of the tailscale router. When configuring the tailscale router, be sure to disable source/destination check and add the --advertise-routes flag to the tailscale up command. The full instructions for using tailscale with hybrid nodes can be found at [Simplify Connectivity Using Tailscale with Amazon EKS Hybrid Nodes](https://aws.amazon.com/blogs/containers/simplify-network-connectivity-using-tailscale-with-amazon-eks-hybrid-nodes/).
+
+So far, I have only been able to get this to work on a Linux machine running Docker. I don't know if Docker desktop will work because Docker uses a micro-VM to run containers and the IP it assigns to the container is not routable from the host (even when you use host networking). 
