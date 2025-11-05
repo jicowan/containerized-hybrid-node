@@ -84,3 +84,131 @@ And finally, I disabled the healthchecks for the cilium agent. Once I did those 
 I was finally able to get kubectl exec and kubectl logs to work. I changed the container's network settings from bridge to host. Then I installed the tailscale agent on my laptop and configured it to advertise my laptop's CIDR and the Cilium CIDR range (10.244.0.0/24). I also had to install a tailscale router in the cluster VPC. The router is configured to advertise the VPC's CIDR. Finally, I had to update the VPC's route tables to route traffic destined for my containerized hybrid node and pods running on it, through the ENI of the tailscale router. When configuring the tailscale router, be sure to disable source/destination check and add the --advertise-routes flag to the tailscale up command. The full instructions for using tailscale with hybrid nodes can be found at [Simplify Connectivity Using Tailscale with Amazon EKS Hybrid Nodes](https://aws.amazon.com/blogs/containers/simplify-network-connectivity-using-tailscale-with-amazon-eks-hybrid-nodes/).
 
 So far, I have only been able to get this to work on a Linux machine running Docker. I don't know if Docker desktop will work because Docker uses a micro-VM to run containers and the IP it assigns to the container is not routable from the host (even when you use host networking). 
+
+
+
+JH Notes:
+
+1. launch EKS cluster
+```yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: "hybrid-cluster"
+  region: us-west-2
+  tags:
+    auto-delete: "no"
+  version: "1.34"
+
+iam:
+  withOIDC: true
+
+addons:
+- name: eks-pod-identity-agent
+  resolveConflicts: overwrite
+
+vpc:
+  subnets:
+    public:
+      us-west-2a: { id: 'subnet-0123456789abcdefg' }
+      us-west-2b: { id: 'subnet-0123456789abcdefg' }
+      us-west-2c: { id: 'subnet-0123456789abcdefg' }
+
+managedNodeGroups:
+  - name: hybrid-cluster-static
+    amiFamily: Bottlerocket
+    instanceType: m5.xlarge
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 4
+    labels: { role: "workers-1", managed: "True" }
+    volumeSize: 80
+    ssh:
+      allow: false
+    tags:
+      auto-delete: "no"
+remoteNetworkConfig:
+  iam:
+    provider: SSM
+  remoteNodeNetworks:
+  - cidrs: ["192.168.20.0/24"]
+  remotePodNetworks:
+  - cidrs: ["10.10.10.0/24"]
+```
+
+2. install tailscale ec2 (in EKS SG)
+https://tailscale.com/kb/1449/quick-guide-aws
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up
+```
+
+
+3. install cilium helm chart (include DS edits?)
+https://docs.cilium.io/en/stable/installation/k8s-install-helm/
+```bash
+helm repo add cilium https://helm.cilium.io/ && \
+helm repo update && \
+helm install cilium cilium/cilium \
+    --version 1.18.3 \
+    --namespace kube-system
+```
+
+
+4. install remote tailscale
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up
+```
+
+
+5. advertise routes
+```bash
+sudo tailscale up --advertise-routes `sudo ip addr show wlo1 | grep -oP 'inet \K[\d.]+\/[\d]{2}` --accept-routes
+```
+
+interface screenshots
+
+add VPC routes in cluster VPC
+trust EKS cluster SG to Tailscale SG (if Tailscale endpoint in same SG then not needed)
+
+
+6. update EKS remote network configuration
+(optional) opportunity to show how to change the remote network configuration in case of change
+
+
+7. update remote nodeConfig items
+- cluster name
+- cluster region
+- node-ip kubelet flag
+- ssm activation details
+
+
+8. build and run remote Docker
+```bash
+make && \
+make run
+```
+
+
+9. test / validate
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: default
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: 'mi-0123456789abcdefg'
+  tolerations:
+  - key: "node.cloudprovider.kubernetes.io/uninitialized"
+    value: "true"
+    effect: "NoSchedule"
+  containers:
+  - name: app
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
+```
